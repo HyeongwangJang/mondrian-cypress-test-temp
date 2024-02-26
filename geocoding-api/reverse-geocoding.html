@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geocoding API - 리버스 지오코딩</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <h1>리버스 지오코딩</h1>
+  <!-- https://developers.google.com/maps/documentation/geocoding/requests-reverse-geocoding?hl=ko -->
+
+  <h2>요청</h2>
+  <div class="wrapper request-wrapper">
+    <div id="req-container"></div>
+  </div>
+
+  <h2>응답</h2>
+  <div class="wrapper response-wrapper">
+    <div id="res-container"></div>
+  </div>
+
+  <script src="../constants.js"></script>
+  <script>
+    const reqContainer = document.querySelector('#req-container');
+    const resContainer = document.querySelector('#res-container');
+
+    const baseUrl = 'https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/geocode/json';
+    const params = {
+      key: 'AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA',
+      pass: 'icFBM82OWZvesSkQ7dxg',
+      latlng: '40.714224,-73.961452',
+    }
+    const qs = new URLSearchParams(params).toString();
+    const url = baseUrl + '?' + qs;
+    reqContainer.innerText = url;
+
+    fetch(url)
+      .then(async (res) => {
+        resContainer.innerHTML = JSON.stringify(await res.json());
+      })
+      .catch((err) => {
+        resContainer.innerText = err;
+      })
+  </script>
+</body>
+</html>

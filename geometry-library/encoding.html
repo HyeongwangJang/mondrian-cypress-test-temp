@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>헤딩 계산</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css" />
+
+    <script
+      async
+      src="https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/js?key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg&callback=initMap&libraries=geometry"
+    ></script>
+  </head>
+  <body class="flex gap-8">
+    <div id="map" class="map"></div>
+
+    <div class="panel">
+      <h1>인코딩 메서드</h1>
+      <!-- https://developers.google.com/maps/documentation/javascript/geometry?hl=ko#Encoding -->
+
+      <textarea
+        id="encoded-polyline"
+        style="width: 100%; height: 100px"
+      ></textarea>
+    </div>
+
+    <script>
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 14,
+          center: { lat: 34.366, lng: -89.519 },
+        });
+        const poly = new google.maps.Polyline({
+          strokeColor: "#000000",
+          strokeOpacity: 1,
+          strokeWeight: 3,
+          map: map,
+        });
+
+        // Add a listener for the click event
+        google.maps.event.addListener(map, "click", (event) => {
+          addLatLngToPoly(event.latLng, poly);
+        });
+      }
+
+      /**
+       * Handles click events on a map, and adds a new point to the Polyline.
+       * Updates the encoding text area with the path's encoded values.
+       */
+      function addLatLngToPoly(latLng, poly) {
+        const path = poly.getPath();
+
+        // Because path is an MVCArray, we can simply append a new coordinate
+        // and it will automatically appear
+        path.push(latLng);
+
+        // Update the text field to display the polyline encodings
+        const encodeString = google.maps.geometry.encoding.encodePath(path);
+
+        if (encodeString) {
+          document.getElementById("encoded-polyline").value = encodeString;
+        }
+      }
+    </script>
+  </body>
+</html>

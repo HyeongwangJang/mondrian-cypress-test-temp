@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directions API - 길 찾기</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <!-- https://developers.google.com/maps/documentation/directions/get-directions?hl=ko -->
+  <h1>길 찾기</h1>
+
+  <h2>요청</h2>
+  <div class="wrapper request-wrapper">
+    <h3>request</h3>
+    <div id="req-container"></div>
+  </div>
+
+  <h2>응답</h2>
+  <div class="wrapper response-wrapper">
+    <h3>response</h3>
+    <div id="res-container"></div>
+  </div>
+
+  <script src="../constants.js"></script>
+  <script>
+    const reqContainer = document.querySelector('#req-container');
+    const resContainer = document.querySelector('#res-container');
+    
+    const baseUrl = 'https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/directions/json';
+    const params = {
+      key: 'AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA',
+      pass: 'icFBM82OWZvesSkQ7dxg',
+      origin: 'place_id:' + PLACE_IDS.australia.emporiumHotelSouthBank,
+      destination: 'place_id:' + PLACE_IDS.australia.carinaLeaguesClub,
+    }
+    const qs = new URLSearchParams(params).toString();
+    const url = baseUrl + '?' + qs;
+    reqContainer.innerHTML = url;
+
+    fetch(url)
+      .then((res) => {
+        resContainer.innerHTML = res;
+      })
+      .catch((err) => {
+        resContainer.innerHTML = err;
+      })
+  </script>
+</body>
+</html>

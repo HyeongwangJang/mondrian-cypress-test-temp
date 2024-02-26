@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS API - 고도</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css" />
+
+    <script
+      async
+      src="https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/js?key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg&callback=initMap&libraries=geometry"
+    ></script>
+  </head>
+  <body class="flex gap-8">
+    <div id="map" class="map"></div>
+
+    <div class="panel">
+      <h1>고도</h1>
+    </div>
+
+    <script>
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 8,
+          center: { lat: 63.333, lng: -150.5 },
+          mapTypeId: 'terrain',
+        });
+
+        const elevator = new google.maps.ElevationService();
+        const infowindow = new google.maps.InfoWindow({});
+
+        infowindow.open(map);
+        // Add a listener for the click event. Display the elevation for the LatLng of
+        // the click inside the infowindow.
+        map.addListener("click", (event) => {
+          displayLocationElevation(event.latLng, elevator, infowindow);
+        });
+      }
+
+      function displayLocationElevation(location, elevator, infowindow) {
+      // Initiate the location request
+      elevator
+        .getElevationForLocations({
+          locations: [location],
+        })
+        .then(({ results }) => {
+          infowindow.setPosition(location);
+          // Retrieve the first result
+          if (results[0]) {
+            // Open the infowindow indicating the elevation at the clicked position.
+            infowindow.setContent(
+              "The elevation at this point <br>is " +
+                results[0].elevation +
+                " meters.",
+            );
+          } else {
+            infowindow.setContent("No results found");
+          }
+        })
+        .catch((e) =>
+          infowindow.setContent("Elevation service failed due to: " + e),
+        );
+    }
+    </script>
+  </body>
+</html>

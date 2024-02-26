@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS API - 몬드리안 테스트</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css" />
+
+    <!-- Maps JS API -->
+    <script
+      id="mapsScript"
+      async 
+      src="https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/js?key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg&callback=initMap&libraries=places,drawing"
+    ></script>
+  </head>
+  <body class="flex gap-8">
+    <!-- map -->
+    <div id="map" class="map"></div>
+
+    <!-- panel -->
+    <div class="panel">
+      <h1>몬드리안 테스트</h1>
+
+      <div class="border-box p-4 mb-4">
+        <h2>지도 유형 변경</h2>
+        <div class="flex flex-row gap-4">
+          <input id="roadmap-btn" type="button" value="기본지도(로드맵)" />
+          <input id="satellite-btn" type="button" value="위성" />
+          <input id="hybrid-btn" type="button" value="하이브리드" />
+          <input id="terrain-btn" type="button" value="지형 정보" />
+        </div>
+      </div>
+
+      <div class="border-box p-4 mb-4">
+        <h2>마커 토글</h2>
+        <div class="flex flex-row gap-4">
+          <input id="snu-marker-btn" type="button" value="SNU 장학빌딩" />
+          <input id="postoffice-marker-btn" type="button" value="마포우체국" />
+        </div>
+      </div>
+
+      <div class="border-box p-4 mb-4">
+        <h2>장소 찾기</h2>
+        <div class="flex flex-row gap-4">
+          <input id="place-btn" type="button" value="쿼리에서 장소 찾기: 마포 우체국"
+          />
+        </div>
+
+        <h2>장소 자동완성</h2>
+        <input type="text" id="pac-input" placeholder="장소를 검색하세요" />
+      </div>
+
+      <div class="border-box p-4 mb-4">
+        <h2>길 찾기</h2>
+        <input id="direction-btn" type="button" value="캄팔라에서 나이로비" />
+      </div>
+
+      <div class="border-box p-4 mb-4">
+        <h2>지오코딩</h2>
+        <input id="geocoding-btn" type="button" value="광화문" />
+      </div>
+    </div>
+
+    <script src="../constants.js"></script>
+    <script>
+      const roadmapBtn = document.querySelector("#roadmap-btn");
+      const satelliteBtn = document.querySelector("#satellite-btn");
+      const hybridBtn = document.querySelector("#hybrid-btn");
+      const terrainBtn = document.querySelector("#terrain-btn");
+
+      const snuMarkerBtn = document.querySelector("#snu-marker-btn");
+      const postofficeMarkerBtn = document.querySelector(
+        "#postoffice-marker-btn"
+      );
+
+      const directionBtn = document.querySelector("#direction-btn");
+
+      const geocodingBtn = document.querySelector("#geocoding-btn");
+
+      const placeBtn = document.querySelector("#place-btn");
+      const pacInput = document.querySelector("#pac-input");
+
+      let map;
+
+      let directionsService;
+      let directionsRenderer;
+
+      let geocoder;
+
+      let placesService;
+
+      let markers = [];
+
+      // 맵 초기화
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: LAT_LNG.korea.SNU,
+          zoom: 16,
+          mapTypeId: "roadmap",
+        });
+        window.map = map;
+        console.log('map type', map.getMapTypeId());
+
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+
+        geocoder = new google.maps.Geocoder();
+
+        placesService = new google.maps.places.PlacesService(map);
+
+        // 장소 자동완성
+        const options = {
+          fields: ["formatted_address", "geometry", "name"],
+          strictBounds: false,
+        };
+        const autocomplete = new google.maps.places.Autocomplete(
+          pacInput,
+          options
+        );
+        autocomplete.bindTo("bounds", map);
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          console.log(place);
+          alert(
+            "이름: " + place.name + "\n" + "주소: " + place.formatted_address
+          );
+        });
+
+        // 그리기 도구 초기화
+        const drawingManager = new google.maps.drawing.DrawingManager({
+          // drawingMode: google.maps.drawing.OverlayType.MARKER,
+          drawingControl: true,
+          drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: [
+              google.maps.drawing.OverlayType.MARKER,
+              google.maps.drawing.OverlayType.CIRCLE,
+              google.maps.drawing.OverlayType.POLYGON,
+              google.maps.drawing.OverlayType.POLYLINE,
+              google.maps.drawing.OverlayType.RECTANGLE,
+            ],
+          },
+          markerOptions: {
+            icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+          },
+          circleOptions: {
+            fillColor: "#ffff00",
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1,
+          },
+        });
+        drawingManager.setMap(map);
+      }
+
+      // 지도 유형 변경
+      function changeMapType(type) {
+        map.setMapTypeId(type);
+      }
+      roadmapBtn.addEventListener("click", () => changeMapType("roadmap"));
+      satelliteBtn.addEventListener("click", () => changeMapType("satellite"));
+      hybridBtn.addEventListener("click", () => changeMapType("hybrid"));
+      terrainBtn.addEventListener("click", () => changeMapType("terrain"));
+
+      // 마커 토글
+      function toggleMarker(title, latLng, id) {
+        let marker;
+        marker = markers.find((marker) => marker['id'] == id);
+        if(marker) {
+          marker.setMap();
+          removeElementFromArray(markers, marker);
+          return;
+        }
+        marker = new google.maps.Marker({
+          position: latLng,
+          map: map,
+          title: title,
+          id: id,
+        });
+        markers.push(marker);
+      }
+      snuMarkerBtn.addEventListener("click", () =>
+        toggleMarker("SNU 장학빌딩", LAT_LNG.korea.SNU, 1)
+      );
+      postofficeMarkerBtn.addEventListener("click", () =>
+        toggleMarker("마포우체국", LAT_LNG.korea.마포우체국, 2)
+      );
+
+      // 길 찾기
+      function getDirection(fromLatLng, toLatLng) {
+        directionsService.route(
+          {
+            origin: {
+              query: fromLatLng.lat + "," + fromLatLng.lng,
+            },
+            destination: {
+              query: toLatLng.lat + "," + toLatLng.lng,
+            },
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          (res, status) => {
+            if (status === "OK") {
+              alert(
+                `총 거리: ${res.routes[0].legs[0].distance.text}\r\n소요 시간: ${res.routes[0].legs[0].duration.text}`
+              );
+              directionsRenderer.setDirections(res);
+            } else {
+              window.alert("길 찾기 실패: " + status);
+            }
+          }
+        );
+      }
+      directionBtn.addEventListener("click", () =>
+        getDirection(LAT_LNG.kampala, LAT_LNG.nairobi)
+      );
+
+      // 지오코딩
+      function geocode(address) {
+        geocoder.geocode({ address: address }, (res, status) => {
+          if (status === "OK") {
+            const location = res[0].geometry.location;
+            let geocodingMarker = new google.maps.Marker({
+              map: map,
+              position: location,
+            });
+
+            let geocodingInfowindow = new google.maps.InfoWindow();
+            geocodingInfowindow.setContent(`
+              <div>
+                <h4>지오코딩 결과</h4>
+                <p>위도: ${location.lat()}</p>
+                <p>경도: ${location.lng()}</p>
+              </div>
+            `);
+            geocodingInfowindow.open(map, geocodingMarker);
+
+            map.setCenter(location);
+            map.setZoom(15);
+          } else {
+            alert("지오코딩 실패: " + status);
+          }
+        });
+      }
+      geocodingBtn.addEventListener("click", () => geocode("광화문"));
+
+      // 거리 계산
+      function findPlaceFromQuery(query) {
+        const request = {
+          query: query,
+          fields: ["name", "geometry"],
+        };
+        placesService.findPlaceFromQuery(request, function (results, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+              marker = new google.maps.Marker({
+                position: results[i].geometry.location,
+                map: map,
+                title: results[i].name,
+              });
+              markers.push(marker);
+            }
+            map.setCenter(results[0].geometry.location);
+          }
+        });
+      }
+      placeBtn.addEventListener("click", () => findPlaceFromQuery("마포 우체국"));
+    </script>
+  </body>
+</html>

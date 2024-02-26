@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>몬드리안 서버 API 테스트</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Maps JavaScript API</h1>
+  <ul>
+    <li><a href="js-api/mondrian.html">몬드리안 테스트</a></li>
+    <li><a href="js-api/elevation.html">고도</a></li>
+  </ul>
+
+  <h1>Maps JavaScript API geometry library</h1>
+  <ul>
+    <li><a href="geometry-library/heading.html">지오메트리 라이브러리 - 헤딩 계산</a></li>
+    <li><a href="geometry-library/encoding.html">지오메트리 라이브러리 - 인코딩 메서드</a></li>
+  </ul>
+  
+  <h1>Maps JavaScript API places library</h1>
+  <ul>
+    <li><a href="places-library/place-class.html">장소 라이브러리 - 장소 클래스</a></li>
+    <li><a href="places-library/place-service.html">장소 라이브러리 - 장소 서비스</a></li>
+  </ul>
+
+  <h1>Geocoding API</h1>
+  <ul>
+    <li><a href="geocoding-api/geocoding.html">지오코딩</a></li>
+    <li><a href="geocoding-api/reverse-geocoding.html">리버스 지오코딩</a></li>
+  </ul>
+
+  <h1>Timezone API</h1>
+  <ul>
+    <li><a href="timezone-api/timezone.html">타임존</a></li>
+  </ul>
+
+  <h1>Geolocation API</h1>
+  <ul>
+    <li><a href="geolocation-api/geolocation.html">지오로케이션</a></li>
+  </ul>
+
+  <hr>
+  <h1>서버 API</h1>
+
+  <h1>Directions API</h1>
+  <ul>
+    <li>
+      <a href="
+        https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/directions/json?destination=Montreal&origin=Toronto&key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg" target="_blank"
+      >토론토~몬트리올 길찾기</a>
+    </li>
+  </ul>
+
+  <h1>Places API</h1>
+  <ul>
+    <li>
+      <a href="
+        https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/place/textsearch/json?query=restaurants%20in%20Sydney&key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg" target="_blank"
+      >텍스트 검색 예시</a>
+    </li>
+    <li>
+      <a href="
+        https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/place/nearbysearch/json?keyword=cruise&location=-33.8670522%2C151.1957362&radius=1500&type=restaurant&key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg" target="_blank"
+      >주변지역 검색 예시</a>
+    </li>
+    <li>
+      <a href="
+        https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/place/findplacefromtext/json?fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&input=Museum%20of%20Contemporary%20Art%20Australia&inputtype=textquery&key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg" target="_blank"
+      >장소찾기 예시</a>
+    </li>
+    <li>
+      <a href="
+        https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/place/details/json?fields=name%2Crating%2Cformatted_phone_number&place_id=ChIJN1t_tDeuEmsRUsoyG83frY4&key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg" target="_blank"
+      >장소 세부정보 예시</a>
+    </li>
+  </ul>
+
+  <script src="constants.js"></script>
+</body>
+</html>

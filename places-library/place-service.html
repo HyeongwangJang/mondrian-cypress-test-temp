@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>places 라이브러리</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css" />
+
+    <script
+      async defer
+      src="https://mondrian.sphinfo.co.kr:9443/google/jsapi/maps/api/js?key=AIzaSyAgV0BJIi1-OGYlo4hOu6r7nc3Ab0J_yrA&pass=icFBM82OWZvesSkQ7dxg&callback=initMap&libraries=places"
+    ></script>
+  </head>
+  <body class="flex gap-8">
+    <!-- map -->
+    <div id="map" class="map"></div>
+
+    <!-- panel -->
+    <div class="panel">
+      <!-- https://developers.google.com/maps/documentation/javascript/places?hl=ko -->
+      <h1>places 라이브러리 - 장소 서비스</h1>
+
+      <div class="border-box p-4 mb-4">
+        <h2>장소 찾기 요청</h2>
+        <input id="find-place-input" type="text" name="" placeholder="장소 찾기">
+        
+        <h2>주변 검색 요청</h2>
+        <input id="nearby-search-btn" type="button" value="주변 검색 요청:레스토랑" />
+
+        <h2>텍스트 검색 요청</h2>
+        <input id="text-search-input" type="text" name="" placeholder="텍스트 검색">
+        <!-- <input id="text-search-btn" type="button" value="텍스트 검색 요청 요청" /> -->
+
+        <h2>장소 세부정보</h2>
+        <input id="place-detail-btn" type="button" value="장소 세부정보" />
+
+        <h2>신규 장소 자동완성</h2>
+        <input id="pac-input" type="text" placeholder="장소를 검색하세요" />
+      </div>
+    </div>
+
+    <script src="../constants.js"></script>
+    <script>
+      const $findPlaceInput = document.querySelector('#find-place-input');
+      const $textSearchInput = document.querySelector('#text-search-input');
+
+      const $findPlaceBtn = document.querySelector('#find-place-btn');
+      const $nearbySearchBtn = document.querySelector('#nearby-search-btn');
+      const $textSearchBtn = document.querySelector('#text-search-btn');
+      const $placeDetailBtn = document.querySelector("#place-detail-btn");
+      
+      const pacInput = document.querySelector("#pac-input");
+
+      let map;
+      let placesService;
+
+      let markers = [];
+
+      let infowindow;
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: LAT_LNG.korea.SNU,
+          zoom: 16,
+          mapTypeId: "roadmap",
+        });
+
+        infowindow = new google.maps.InfoWindow();
+
+        placesService = new google.maps.places.PlacesService(map);
+
+        // 장소 자동완성
+        const options = {
+          fields: ["formatted_address", "geometry", "name"],
+          strictBounds: false,
+        };
+        const autocomplete = new google.maps.places.Autocomplete(
+          pacInput,
+          options
+        );
+        autocomplete.bindTo("bounds", map);
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          initMarkers();
+          createMarker(place);
+          map.setCenter(place.geometry.location);
+        });
+      }
+      $findPlaceInput.addEventListener('keyup', (e) => {
+        if(e.keyCode == 13) {
+          const request = {
+            query: e.target.value,
+            fields: ['name', 'geometry'],
+          }
+
+          placesService.findPlaceFromQuery(request, function(results, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            initMarkers();
+            for (let i = 0; i < results.length; i++) {
+              createMarker(results[i]);
+            }
+
+            map.setCenter(results[0].geometry.location);
+          }
+        });
+        }
+      })
+
+      // 주변 검색 요청
+      $nearbySearchBtn.addEventListener('click', () => {
+        const request = {
+          bounds: map.getBounds(),
+          radius: '500',
+          type: ['restaurant'],
+        };
+
+        placesService.nearbySearch(request, function(results, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            initMarkers();
+            for (let i = 0; i < results.length; i++) {
+              createMarker(results[i]);
+            }
+          }
+        });
+      })
+
+      // 텍스트 검색 요청
+      $textSearchInput.addEventListener('keyup', (e) => {
+        if(e.keyCode == 13) {
+          const request = {
+            bounds: map.getBounds(),
+            radius: '500',
+            query: e.target.value,
+          };
+
+          placesService.textSearch(request, function(results, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              initMarkers();
+              for (let i = 0; i < results.length; i++) {
+                createMarker(results[i]);
+              }
+            }
+          })
+        }
+      })
+
+      // 장소 세부정보
+      $placeDetailBtn.addEventListener('click', async () => {
+        var request = {
+          placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4',
+          fields: ['name', 'rating', 'formatted_phone_number', 'geometry']
+        };
+
+        placesService.getDetails(request, function(place, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            initMarkers();
+            createMarker(place);
+            map.setCenter(place.geometry.location);
+            alert(
+              'displayName: ' + place.name + '\n' +
+              'formatted_phone_number: ' + place.formatted_phone_number + '\n' +
+              'rating: ' + place.rating
+            )
+          }
+        })
+      })
+
+      function createMarker(place) {
+        if (!place.geometry || !place.geometry.location) return;
+
+        const marker = new google.maps.Marker({
+          map,
+          position: place.geometry.location,
+        });
+        markers.push(marker);
+
+        google.maps.event.addListener(marker, "click", () => {
+          infowindow.setContent(place.name || "");
+          infowindow.open({
+            anchor: marker,
+            map,
+          });
+        });
+      }
+
+      function initMarkers() {
+        for(let i = 0; i < markers.length; i++) {
+          markers[i].setMap();
+        }
+        markers = [];
+      }
+    </script>
+  </body>
+</html>
