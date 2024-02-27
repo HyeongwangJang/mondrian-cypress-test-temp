@@ -61,6 +61,11 @@
         <h2>지오코딩</h2>
         <input id="geocoding-btn" type="button" value="광화문" />
       </div>
+
+      <div class="border-box p-4 mb-4">
+        <h2>Draw</h2>
+        <input id="triangle-btn" type="button" value="Draw Triangle" />
+      </div>
     </div>
 
     <script src="../constants.js"></script>
@@ -78,6 +83,8 @@
       const directionBtn = document.querySelector("#direction-btn");
 
       const geocodingBtn = document.querySelector("#geocoding-btn");
+
+      const triangleBtn = document.querySelector("#triangle-btn");
 
       const placeBtn = document.querySelector("#place-btn");
       const pacInput = document.querySelector("#pac-input");
@@ -101,7 +108,6 @@
           mapTypeId: "roadmap",
         });
         window.map = map;
-        console.log('map type', map.getMapTypeId());
 
         directionsService = new google.maps.DirectionsService();
         directionsRenderer = new google.maps.DirectionsRenderer();
@@ -269,6 +275,26 @@
         });
       }
       placeBtn.addEventListener("click", () => findPlaceFromQuery("마포 우체국"));
+
+      // 그리기
+      const triangleCoords = [
+        { lat: 37.567065, lng: 126.979982 },
+        { lat: 37.559207, lng: 126.977663 },
+        { lat: 37.559511, lng: 126.993612 },
+      ]
+      triangleBtn.addEventListener("click", () => drawPolygon(triangleCoords));
+
+      function drawPolygon(coords) {
+        const polygon = new google.maps.Polygon({
+          paths: coords,
+          strokeColor: "#FF0000",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "#FF0000",
+          fillOpacity: 0.35,
+        });
+        polygon.setMap(map);
+      }
     </script>
   </body>
 </html>
